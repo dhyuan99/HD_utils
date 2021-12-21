@@ -1,5 +1,5 @@
 import timeit
-from quantize import record_based, N_gram_based, distance_preserving
+from pyhdc.quantize import record_based, N_gram_based, distance_preserving
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -17,7 +17,7 @@ x = np.random.uniform(size=[85])
 
 print(f"record_based: {timeit.timeit(setup=SETUP, stmt='Q1.quantize(x)', number=10000) / 10} ms per vector.")
 print(f"N_gram_based: {timeit.timeit(setup=SETUP, stmt='Q2.quantize(x)', number=10000) / 10} ms per vector.")
-print(f"N_gram_based: {timeit.timeit(setup=SETUP, stmt='Q3.quantize(x)', number=10000) / 10} ms per vector.")
+print(f"dist-preserv: {timeit.timeit(setup=SETUP, stmt='Q3.quantize(x)', number=10000) / 10} ms per vector.")
 
 R = record_based(real_dim=1, HD_dim=2048, q=100)
 G = N_gram_based(real_dim=1, HD_dim=2048, q=100)
