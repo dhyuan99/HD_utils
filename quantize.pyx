@@ -25,15 +25,22 @@ def construct_levels(Py_ssize_t n_levels, Py_ssize_t dim):
 
 cdef class record_based:
     cdef int q
+    cdef int real_dim
+    cdef int HD_dim
     cdef np.ndarray L
     cdef np.ndarray ID
+    
     def __cinit__(self, int real_dim, int HD_dim, int q):
         self.ID = np.random.randint(2, size=[real_dim, HD_dim])
         self.L = construct_levels(n_levels=q+1, dim=HD_dim)
+
         self.q = q
+        self.real_dim = real_dim
+        self.HD_dim = HD_dim
         
     def quantize(self, np.ndarray x):
         # x is a real vector of size real_dim.
+        assert len(x) == self.real_dim, 'Dimension does not match.'
         x = (x * self.q).astype(int)
         z = np.logical_xor(self.L[x, :], self.ID)
         z = np.round(np.mean(z, axis=0)).astype(int)
@@ -53,6 +60,7 @@ cdef class N_gram_based:
     @cython.wraparound(False)   # Deactivate negative indexing.
     def __cinit__(self, int real_dim, int HD_dim, int q):
         self.L = construct_levels(n_levels=q+1, dim=HD_dim)
+
         self.real_dim = real_dim
         self.HD_dim = HD_dim
         self.q = q
@@ -73,7 +81,7 @@ cdef class N_gram_based:
     @cython.wraparound(False)   # Deactivate negative indexing.
     def quantize(self, np.ndarray x):
 
-        assert len(x) == self.real_dim
+        assert len(x) == self.real_dim, 'Dimension does not match.'
         
         result = np.zeros(shape=[self.real_dim, self.HD_dim], dtype=np.intc)
         cdef double[::1] x_view = x
@@ -106,7 +114,7 @@ cdef class distance_preserving:
     @cython.wraparound(False)   # Deactivate negative indexing.
     def quantize(self, np.ndarray x):
         
-        assert len(x) == self.real_dim
+        assert len(x) == self.real_dim, 'Dimension does not match.'
         
         result = np.zeros(shape=[self.real_dim * self.q], dtype=np.intc)
         cdef double[::1] x_view = x
@@ -117,3 +125,6 @@ cdef class distance_preserving:
             for j in range(idx):
                 result_view[i * self.q + j] = 1
         return result
+
+    def quantize_batch(self, np.ndarray x):
+        return np.array([self.quantize(xi) for xi in x])
