@@ -1,6 +1,8 @@
 Before running the program, be sure to install `cython` and `gcc`.
+
 In the anaconda environment, run `conda install -c anaconda cython` to install cython.
-In a Linux machine, run `sudo apt-get install gcc`.
+
+In a Linux machine, run `sudo apt-get install gcc` to install `gcc`.
 
 To set up the package, run `python setup.py build_ext --inplace`.
 
